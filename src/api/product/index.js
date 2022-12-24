@@ -1,14 +1,14 @@
 import express from "express";
 import uniqid from "uniqid";
 import { getProduct, writeProduct } from "../../lib/fs-tools.js";
-import { checkProduct, triggerBadRequest } from "./validator.js";
+import { checkProductSchema, triggerProductBadRequest } from "./validator.js";
 
 const productRouter = express.Router();
 
 productRouter.post(
   "/",
-  checkProduct,
-  triggerBadRequest,
+  checkProductSchema,
+  triggerProductBadRequest,
   async (req, res, next) => {
     try {
       const newproduct = {
@@ -77,7 +77,7 @@ productRouter.put("/:productId", async (req, res) => {
   } catch (error) {}
 });
 
-productRouter.delete("/:productId", async (req, res) => {
+productRouter.delete("/:productId", async (req, res, next) => {
   try {
     const products = await getProduct();
 
@@ -86,10 +86,10 @@ productRouter.delete("/:productId", async (req, res) => {
     );
 
     if (products.length !== remainingProduct.length) {
-      await writeBooks(remainingProduct);
+      await writeProduct(remainingProduct);
       res.status(204).send();
     } else {
-      next(NotFound(`Book with id ${req.params.productId} not found!`));
+      next(NotFound(`product with id ${req.params.productId} not found!`));
     }
   } catch (error) {
     next(error);

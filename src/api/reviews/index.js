@@ -1,32 +1,40 @@
 import express from "express";
-import uniqid from "uniqid";
 import { getReviews, writeReviews } from "../../lib/fs-tools.js";
+import {
+  checkCommentSchema,
+  triggerCommentBadRequest,
+} from "../reviews/validator.js";
 
 const reviewRouter = express.Router();
 
-reviewRouter.post("/:productId/reviews", async (req, res, next) => {
-  try {
-    const newReviews = {
-      ...req.body,
-      createdAt: new Date(),
-      _id: uniqid(),
-      productId: req.params.productId,
-    };
+reviewRouter.post(
+  "/:productId/reviews",
+  checkCommentSchema,
+  triggerCommentBadRequest,
+  async (req, res, next) => {
+    try {
+      const newReviews = {
+        ...req.body,
+        _id: uniqid(),
+        createdAt: new Date(),
+        productId: req.params.productId,
+      };
 
-    const arrayOfReviews = await getReviews();
-    console.log("here i am", arrayOfReviews);
+      const arrayOfReviews = await getReviews();
+      console.log("here i am", arrayOfReviews);
 
-    arrayOfReviews.push(newReviews);
+      arrayOfReviews.push(newReviews);
 
-    await writeReviews(arrayOfReviews);
+      await writeReviews(arrayOfReviews);
 
-    res
-      .status(201)
-      .send({ _id: newReviews._id, productId: newReviews.productId });
-  } catch (error) {
-    next(error);
+      res
+        .status(201)
+        .send({ _id: newReviews._id, productId: newReviews.productId });
+    } catch (error) {
+      next(error);
+    }
   }
-});
+);
 
 reviewRouter.get("/:productId/reviews", async (req, res) => {
   try {
@@ -35,9 +43,9 @@ reviewRouter.get("/:productId/reviews", async (req, res) => {
   } catch (error) {}
 });
 
-reviewRouter.get("/:productId", async (req, res, next) => {
+reviewRouter.get("/:productId/reviews/:reviewId", async (req, res, next) => {
   try {
-    const arrayOfReviews = await getProduct();
+    const arrayOfReviews = await getReviews();
     const product = arrayOfReviews.find(
       (product) => product._id === req.params.productId
     );
@@ -51,33 +59,33 @@ reviewRouter.get("/:productId", async (req, res, next) => {
   }
 });
 
-reviewRouter.put("/:productId", async (req, res) => {
+reviewRouter.put("/:productId/reviews/:reviewId", async (req, res) => {
   try {
-    const products = await getProduct();
-    const index = products.findIndex(
-      (product) => product._id === req.params.productId
+    const arrayOfReviews = await getReviews();
+    const index = arrayOfReviews.findIndex(
+      (reviews) => reviews._id === req.params.reviewId
     );
     if (index !== -1) {
-      const oldProduct = products[index];
-      const updateProduct = { ...oldProduct, updatedAt: new Date() };
-      proudct[index] = updateProduct;
-      res.send(updateProduct);
+      const oldReviewDetails = arrayOfReviews[index];
+      const arrayOfReviews = { ...oldReviewDetails, updatedAt: new Date() };
+      arrayOfReviews[index] = arrayOfReviews;
+      res.send(arrayOfReviews);
     } else {
       next(error);
     }
   } catch (error) {}
 });
 
-reviewRouter.delete("/productId", async (req, res) => {
+reviewRouter.delete("/productId/reviews/:reviewId", async (req, res) => {
   try {
-    const products = await getProduct();
+    const arrayOfReviews = await getReviews();
 
-    const remainingProduct = products.filter(
-      (product) => product._id !== req.params.productId
+    const remainingReviews = arrayOfReviews.filter(
+      (product) => review._id !== req.params.reviewId
     );
 
-    if (products.length !== remainingProduct.length) {
-      await writeBooks(remainingProduct);
+    if (arrayOfReviews.length !== remainingReviews.length) {
+      await writeReviews(remainingReviews);
       res.status(204).send();
     } else {
       next(NotFound(`no reviews with id ${req.params.productId} not found!`));
