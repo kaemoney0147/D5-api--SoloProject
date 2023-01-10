@@ -10,10 +10,12 @@ import {
   notFound,
   genericError,
 } from "./errorHandlers.js";
+import cors from "cors";
 
 const server = express();
 const publicFolderPath = join(process.cwd(), "./public");
 server.use(express.static(publicFolderPath));
+server.use(cors());
 const port = process.env.PORT;
 server.use(express.json());
 const Middleware = (req, res, next) => {
