@@ -28,7 +28,7 @@ filesRouter.post(
       // await saveImages(fileName, req.file.buffer);
       // //   url to use for the mew image
       // const url = `http://localhost:3001/img/product/${fileName}`;
-      console.log(req.file);
+      // console.log(req.file);
       const url = req.file.path;
       const products = await getProduct();
       const index = products.findIndex(
