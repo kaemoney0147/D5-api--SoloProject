@@ -9,7 +9,7 @@ const cloudinaryUploader = multer({
   storage: new CloudinaryStorage({
     cloudinary, // this searches in your process.env for something called CLOUDINARY_URL which contains your cloudinary api key and secret
     params: {
-      folder: "jan2023/products",
+      folder: "phone/products",
     },
   }),
 }).single("image");
@@ -28,6 +28,7 @@ filesRouter.post(
       // await saveImages(fileName, req.file.buffer);
       // //   url to use for the mew image
       // const url = `http://localhost:3001/img/product/${fileName}`;
+      console.log(req.file);
       const url = req.file.path;
       const products = await getProduct();
       const index = products.findIndex(
