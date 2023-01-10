@@ -15,7 +15,31 @@ import cors from "cors";
 const server = express();
 const publicFolderPath = join(process.cwd(), "./public");
 server.use(express.static(publicFolderPath));
-server.use(cors());
+
+const urlList = [process.env.FE_DEV_URL, process.env.FE_PROD_URL];
+
+server.use(
+  cors({
+    origin: (origin, corsNext) => {
+      // If you want to connect FE to this BE you must use cors middleware
+      console.log("ORIGIN: ", origin);
+
+      if (!origin || urlList.indexOf(origin) !== -1) {
+        // if origin is in the urlList we can move next
+        corsNext(null, true);
+      } else {
+        // if origin is NOT in the urlList --> trigger an error
+        corsNext(
+          createHttpError(
+            400,
+            `Cors Error! Your origin ${origin} is not in the list!`
+          )
+        );
+      }
+    },
+  })
+);
+
 const port = process.env.PORT;
 server.use(express.json());
 const Middleware = (req, res, next) => {
