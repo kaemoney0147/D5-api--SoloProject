@@ -14,7 +14,7 @@ import {
 const server = express();
 const publicFolderPath = join(process.cwd(), "./public");
 server.use(express.static(publicFolderPath));
-const port = 3001;
+const port = process.env.PORT;
 server.use(express.json());
 const Middleware = (req, res, next) => {
   console.log(
